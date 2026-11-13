@@ -13,7 +13,10 @@ RUN pip install --no-cache-dir \
     "python-dotenv>=1.0.1" "typer>=0.12.3" "rich>=13.7.1"
 
 COPY coordenador/ ./coordenador/
+
+# Garante que o módulo coordenador é encontrado
+ENV PYTHONPATH=/app
+
 EXPOSE 9090 8080 8000
-WORKDIR /app/coordenador
-HEALTHCHECK --interval=30s CMD curl -f http://localhost:8080/ || exit 1
-CMD ["python", "server.py", "--host", "0.0.0.0", "--port", "9090"]
+
+CMD ["uvicorn", "coordenador.api:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "2"]
