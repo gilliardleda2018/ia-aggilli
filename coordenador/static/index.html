@@ -444,7 +444,20 @@
       .hero-texto h1 { font-size: 40px; }
       .stat { padding: 16px; }
     }
-  </style>
+  
+html{scroll-behavior:smooth} :root{--muted:#9caec1}
+.hero{min-height:460px;padding:clamp(36px,6vw,80px) 24px;gap:clamp(20px,5vw,72px)}
+.hero-img{width:clamp(200px,30vw,350px);height:clamp(200px,30vw,350px);border-radius:32px}
+.hero-texto h1{font-size:clamp(48px,7vw,76px)}
+.hero-texto h2,.hero-texto p,.stat-label,.card p,.contribuir p{color:#a9bbce}
+.chat-section{max-width:880px}.chat-mensagens{max-height:560px;min-height:360px}
+.msg-bubble{max-width:82%;overflow-wrap:anywhere;white-space:pre-wrap}
+.card{max-width:310px;transition:transform .2s,border-color .2s}.card:hover{transform:translateY(-4px)}
+.sugestao{white-space:normal;color:#afc4d7}
+:focus-visible{outline:2px solid #38bdf8;outline-offset:3px}
+@media(max-width:600px){.hero{text-align:center;padding:36px 18px}.botoes{justify-content:center}.stat{min-width:33%;padding:16px 8px}.chat-section{padding:0 12px}.chat-mensagens{max-height:55vh}.msg-bubble{max-width:calc(100vw - 94px)}.input-area{padding:12px}.contribuir{padding:36px 16px}.card{max-width:none;min-width:100%}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
 
@@ -460,8 +473,8 @@
     <h2>IA da Aggilli</h2>
     <p>
       A primeira inteligência artificial <strong>livre e distribuída</strong> do Brasil.
-      Treinada por milhões de máquinas ao redor do mundo.
-      <strong>Seus dados nunca saem da sua máquina.</strong>
+      Desenvolvida para treinamento colaborativo.
+      <strong>Conheça o projeto de código aberto.</strong>
     </p>
     <div class="botoes">
       <a href="#chat" class="btn-primary">💬 Conversar com a ANI</a>
@@ -482,16 +495,16 @@
     <div class="stat-label">Rounds de treino</div>
   </div>
   <div class="stat">
-    <div class="stat-valor">100k</div>
-    <div class="stat-label">Pares de treino</div>
+    <div class="stat-valor" id="stat-versao">—</div>
+    <div class="stat-label">Versão da ANI</div>
   </div>
   <div class="stat">
     <div class="stat-valor">🇧🇷</div>
     <div class="stat-label">Nascida no Brasil</div>
   </div>
   <div class="stat">
-    <div class="stat-valor">0,00</div>
-    <div class="stat-label">Custo por mensagem</div>
+    <div class="stat-valor">Aberto</div>
+    <div class="stat-label">Código aberto</div>
   </div>
 </div>
 
@@ -555,7 +568,7 @@
       <div class="card-icon">🐍</div>
       <h4>Via Python</h4>
       <p>Clone o projeto e rode o cliente de nó na sua máquina.</p>
-      <code>git clone github.com/gilliardleda2018/ia-aggilli
+      <code>git clone https://github.com/gilliardleda2018/ia-aggilli.git
 python iniciar_no.py</code>
     </div>
     <div class="card">
@@ -577,12 +590,19 @@ e rode todas as células</code>
 
 <script>
   const TOKEN = 'aggilli';
+  const historico = [];
+  let ocupado = false;
+  document.getElementById('btn').setAttribute('aria-label','Enviar mensagem');
+  document.getElementById('input').setAttribute('aria-label','Mensagem para ANI');
+  document.getElementById('mensagens').setAttribute('role','log');
 
   // Status
   async function atualizarStatus() {
     try {
       const r = await fetch('/status');
+      if (!r.ok) throw new Error('HTTP '+r.status);
       const d = await r.json();
+      document.getElementById('stat-versao').textContent = d.versao ?? '—';
       document.getElementById('status-badge').textContent =
         `${d.versao} · viva`;
       document.getElementById('stat-nos').textContent =
@@ -601,42 +621,44 @@ e rode todas as células</code>
   async function enviar() {
     const input = document.getElementById('input');
     const texto = input.value.trim();
-    if (!texto) return;
+    if (!texto || ocupado) return;
     input.value = '';
     auto_resize(input);
     await perguntar(texto);
   }
 
   async function perguntar(texto) {
-    // Esconde sugestões após primeira pergunta
+    if (ocupado || !texto.trim()) return;
+    ocupado = true;
     document.getElementById('sugestoes').style.display = 'none';
-
     adicionarMensagem('user', texto);
+    historico.push({role:'user',content:texto});
     document.getElementById('btn').disabled = true;
-
     const typingId = adicionarTyping();
-
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(),60000);
     try {
       const r = await fetch('/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${TOKEN}`
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: texto }],
-          dominio: 'geral'
-        })
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+        body:JSON.stringify({messages:historico,dominio:'geral'}),
+        signal:controller.signal
       });
+      if (!r.ok) throw new Error('HTTP '+r.status);
       const d = await r.json();
+      const resposta = d.choices?.[0]?.message?.content ?? d.content ?? d.resposta ?? d.response;
+      if (typeof resposta !== 'string' || !resposta.trim()) throw new Error('Resposta vazia');
+      historico.push({role:'assistant',content:resposta});
+      adicionarMensagem('ani',resposta);
+    } catch(err) {
+      historico.pop();
+      adicionarMensagem('ani',err.name==='AbortError'?'A resposta demorou demais. Tente novamente.':'Falha ao responder ('+err.message+'). Tente novamente.');
+    } finally {
+      clearTimeout(timeout);
       removerTyping(typingId);
-      adicionarMensagem('ani', d.content || '...');
-    } catch {
-      removerTyping(typingId);
-      adicionarMensagem('ani', '⚠️ Erro de conexão. Tente novamente.');
+      ocupado = false;
+      document.getElementById('btn').disabled = false;
     }
-
-    document.getElementById('btn').disabled = false;
   }
 
   function adicionarMensagem(tipo, texto) {
