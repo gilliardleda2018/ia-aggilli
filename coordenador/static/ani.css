@@ -27,7 +27,7 @@ button { cursor: pointer; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; white-space: nowrap; }
 .brand-mark {
   display: block;
-  width: clamp(56px, 8vw, 64px);
+  width: clamp(72px, 10vw, 88px);
   height: auto;
   object-fit: contain;
   background: transparent;
