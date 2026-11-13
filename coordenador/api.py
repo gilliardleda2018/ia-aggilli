@@ -8,6 +8,8 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import structlog
 
@@ -56,16 +58,6 @@ async def verificar_token(authorization: str = Header(...)):
     return authorization.split(" ")[1]
 
 
-@app.get("/")
-async def raiz():
-    return {
-        "status": "🌱 ANI viva",
-        "versao": _estado["versao"],
-        "nos_ativos": _estado["nos_ativos"],
-        "rounds_completos": _estado["rounds_completos"],
-        "uptime_segundos": round(time.time() - _inicio, 1),
-    }
-
 @app.get("/status")
 async def status():
     return {
@@ -97,31 +89,15 @@ async def completar(
         custo=0.0,
     )
 
-# ── Serve interface web ──────────────────────────────────────
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
+static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
-static_path = os.path.join(os.path.dirname(__file__), "static")
-if os.path.exists(static_path):
-    app.mount("/static", StaticFiles(directory=static_path), name="static")
-
-@app.get("/chat", include_in_schema=False)
-async def chat_ui():
-    return FileResponse(os.path.join(static_path, "index.html"))
-
-# ── Serve interface web ──────────────────────────────────────
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
-
-_static = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
-if os.path.exists(_static):
-    app.mount("/static", StaticFiles(directory=_static), name="static")
 
 @app.get("/", include_in_schema=False)
 async def index():
-    idx = os.path.join(_static, "index.html")
-    if os.path.exists(idx):
-        return FileResponse(idx)
-    return {"status": "🌱 ANI viva", "versao": _estado["versao"]}
+    return FileResponse(os.path.join(static_path, "index.html"))
+
+
+@app.get("/chat", include_in_schema=False)
+async def chat_ui():
+    return FileResponse(os.path.join(static_path, "chat.html"))
