@@ -96,3 +96,32 @@ async def completar(
         tokens_usados=len(resposta.split()),
         custo=0.0,
     )
+
+# ── Serve interface web ──────────────────────────────────────
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+static_path = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_path):
+    app.mount("/static", StaticFiles(directory=static_path), name="static")
+
+@app.get("/chat", include_in_schema=False)
+async def chat_ui():
+    return FileResponse(os.path.join(static_path, "index.html"))
+
+# ── Serve interface web ──────────────────────────────────────
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+_static = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+if os.path.exists(_static):
+    app.mount("/static", StaticFiles(directory=_static), name="static")
+
+@app.get("/", include_in_schema=False)
+async def index():
+    idx = os.path.join(_static, "index.html")
+    if os.path.exists(idx):
+        return FileResponse(idx)
+    return {"status": "🌱 ANI viva", "versao": _estado["versao"]}
