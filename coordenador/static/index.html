@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Conheça a ANI, a iniciativa brasileira de inteligência artificial distribuída e de código aberto da Aggilli.">
   <title>ANI — IA da Aggilli</title>
-  <link rel="stylesheet" href="/static/ani.css?v=7">
+  <link rel="stylesheet" href="/static/ani.css?v=8">
 </head>
 <body>
   <header class="site-header">
@@ -24,7 +24,7 @@
       <div class="hero-copy">
         <p class="eyebrow"><span class="signal" aria-hidden="true"></span> IA brasileira de código aberto</p>
         <h1 id="hero-title">Inteligência que nasce da <em>colaboração.</em></h1>
-        <p class="intro">A ANI é a iniciativa da Aggilli para desenvolver inteligência artificial com treinamento distribuído e participação da comunidade.</p>
+        <p class="intro">A ANI é uma iniciativa brasileira para desenvolver inteligência artificial com a ajuda de computadores de pessoas voluntárias. Veja como uma pequena contribuição pode fazer parte do treinamento.</p>
         <div class="actions">
           <a class="button button-primary" href="/chat">Conversar com a ANI <span aria-hidden="true">↗</span></a>
           <a class="text-link" href="#projeto">Conhecer o projeto <span aria-hidden="true">↓</span></a>
@@ -42,27 +42,40 @@
         <p class="eyebrow">O projeto</p>
         <h2 id="project-title">O que é a ANI?</h2>
       </div>
-      <p>ANI é a sigla de <strong>Aggilli Native Intelligence</strong>, uma iniciativa brasileira que explora como desenvolver inteligência artificial com a participação de várias máquinas. A proposta é que cada participante possa contribuir com parte do treinamento e que essas contribuições ajudem a ajustar um modelo em comum.</p>
+      <p>ANI significa <strong>Aggilli Native Intelligence</strong>. Imagine ensinar um programa a distinguir uma notícia sobre agricultura de uma notícia sobre transporte. Ele analisa exemplos, compara suas previsões com as respostas esperadas e faz pequenos ajustes. A ANI explora como dividir esse trabalho entre computadores de pessoas voluntárias.</p>
     </section>
 
-    <section class="project" aria-labelledby="training-title">
+    <section class="project" aria-labelledby="gpu-title">
       <div>
-        <p class="eyebrow">Treinamento federado</p>
-        <h2 id="training-title">Como as máquinas aprendem juntas?</h2>
+        <p class="eyebrow">O custo de ensinar uma IA</p>
+        <h2 id="gpu-title">Por que treinar exige tanto processamento?</h2>
       </div>
       <div>
-        <p>Cada computador participante, chamado de <strong>nó</strong>, recebe os parâmetros do modelo e faz ajustes usando os exemplos disponíveis localmente. Imagine dois nós trabalhando com conjuntos de textos diferentes. Cada um faz seus próprios ajustes, e o coordenador combina as atualizações recebidas em uma nova versão para a próxima rodada.</p>
-        <p class="project-note">Nessa etapa, os arquivos de treinamento ficam nos nós. O coordenador recebe as atualizações do modelo. Já as mensagens do chat são enviadas ao serviço web para gerar a resposta.</p>
+        <p>Modelos grandes repetem muitos cálculos a cada rodada de treinamento. Para concluir esse trabalho em tempo viável, costuma-se usar <strong>GPUs</strong>, chips que conseguem executar muitos cálculos ao mesmo tempo. Comprar esses chips custa dinheiro. Na nuvem, a cobrança costuma acompanhar o tempo de uso. Energia e armazenamento também fazem parte do custo.</p>
+        <p class="project-note">Dividir tarefas permite aproveitar a capacidade de várias máquinas. No piloto, uma tarefa pequena já pode rodar no processador comum do computador, a <strong>CPU</strong>. Treinos maiores podem precisar de GPUs.</p>
       </div>
+    </section>
+
+    <section class="rede-ani" aria-labelledby="training-title">
+      <p class="eyebrow">Treinamento federado</p>
+      <h2 id="training-title">Como a contribuição chega à ANI?</h2>
+      <figure class="rede-diagrama">
+        <ol>
+          <li><span class="rede-icone" aria-hidden="true">▤</span><strong>A ANI envia um lote</strong><p>O navegador recebe alguns exemplos do projeto e uma cópia do modelo.</p></li>
+          <li><span class="rede-icone" aria-hidden="true">▣</span><strong>O computador faz os cálculos</strong><p>Com sua autorização, o navegador treina o modelo e envia os ajustes.</p></li>
+          <li><img src="/static/ani-profile.webp" width="56" height="56" alt=""><strong>A ANI reúne as contribuições</strong><p>O servidor combina os ajustes e avalia a nova versão com exemplos que ficaram fora do treino.</p></li>
+        </ol>
+        <figcaption>Os ajustes de vários computadores ajudam a formar a próxima versão do modelo.</figcaption>
+      </figure>
     </section>
 
     <section class="participate" id="contribuir" aria-labelledby="contribute-title">
       <div>
-        <p class="eyebrow">Experimente a ANI</p>
-        <h2 id="contribute-title">Conheça o protótipo de conversa</h2>
-        <p>Abra uma conversa, escolha uma pergunta sugerida ou escreva a sua. O chat ainda usa respostas de demonstração e permite experimentar a interface enquanto o projeto desenvolve o treinamento e a geração de respostas.</p>
+        <p class="eyebrow">Participe do piloto</p>
+        <h2 id="contribute-title">Empreste um pouco do seu processamento</h2>
+        <p>Abra o piloto e escolha se quer colaborar. O treino começa quando você autoriza, usa exemplos do projeto e pode ser interrompido a qualquer momento. Você pode participar sem criar conta.</p>
       </div>
-      <a class="button button-primary" href="/chat">Experimentar o chat <span aria-hidden="true">↗</span></a>
+      <a class="button button-primary" href="/colaborar">Colaborar com a ANI <span aria-hidden="true">↗</span></a>
     </section>
   </main>
 

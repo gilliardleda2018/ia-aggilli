@@ -178,3 +178,24 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.65rem); line-height: 1.12; letter-spacing: 
   .header-inner { gap: 10px; min-height: 62px; }
   .hero-art figcaption { padding-inline: 12px; }
 }
+
+.rede-ani { border-top: 1px solid var(--line); padding-block: clamp(32px, 5vw, 60px); }
+.rede-diagrama { margin-top: 26px; }
+.rede-diagrama ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.rede-diagrama li { position: relative; display: grid; gap: 12px; align-content: start; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); padding: 20px; }
+.rede-diagrama li:not(:last-child)::after { content: "→"; position: absolute; top: 34px; right: -24px; color: var(--accent); }
+.rede-icone, .rede-diagrama img { width: 56px; height: 56px; border-radius: 10px; }
+.rede-icone { display: grid; place-items: center; background: var(--raised); color: var(--accent); font-size: 1.75rem; }
+.rede-diagrama p, .rede-diagrama figcaption { color: var(--muted); line-height: 1.6; }
+.rede-diagrama figcaption { margin-top: 16px; }
+@media (max-width: 760px) {
+  .rede-diagrama ol { grid-template-columns: minmax(0, 1fr); }
+  .rede-diagrama li:not(:last-child)::after { content: "↓"; top: auto; bottom: -25px; right: 24px; }
+}
