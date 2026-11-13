@@ -25,17 +25,8 @@ button { cursor: pointer; }
 }
 .header-inner, .footer-inner { min-height: 74px; justify-content: space-between; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; white-space: nowrap; }
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  aspect-ratio: 1;
-  border-radius: 9px;
-  background: var(--accent);
-  color: #14200e;
-  font-size: 20px;
-}
-.brand-company, nav, .footer-inner { color: var(--muted); font-size: .875rem; }
+.brand-mark { display: block; width: 40px; height: 32px; object-fit: contain; }
+nav, .footer-inner { color: var(--muted); font-size: .875rem; }
 nav a:hover, .footer-inner a:hover, .text-link:hover { color: var(--accent); }
 .button {
   display: inline-flex;
@@ -115,7 +106,6 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.65rem); line-height: 1.12; letter-spacing: 
 
 /* Chat */
 .chat-page { display: flex; flex-direction: column; min-height: 100dvh; }
-.chat-page .brand-company { display: inline; }
 .chat-shell { padding-block: 30px; flex: 1; }
 .chat-shell > h1 { font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -.045em; margin-bottom: 16px; }
 .workspace {
@@ -177,7 +167,7 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.65rem); line-height: 1.12; letter-spacing: 
   .sugestoes { padding-inline: 12px; }
 }
 @media (max-width: 480px) {
-  .nav-detail, .brand-company { display: none; }
+  .nav-detail { display: none; }
   .header-inner { gap: 10px; min-height: 62px; }
   .hero-art figcaption { padding-inline: 12px; }
 }

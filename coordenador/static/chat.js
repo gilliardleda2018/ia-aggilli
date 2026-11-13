@@ -122,7 +122,7 @@ function adicionarMensagem(tipo, texto) {
   div.className = `msg ${tipo}`;
 
   const avatar = tipo === 'ani'
-    ? `<div class="msg-avatar"><img src="/static/ani-avatar.png" alt="ANI"></div>`
+    ? `<div class="msg-avatar"><img src="/static/ani-profile.webp" alt="ANI"></div>`
     : `<div class="msg-avatar user" aria-hidden="true">Você</div>`;
 
   div.innerHTML = `
@@ -140,7 +140,7 @@ function adicionarTyping() {
   div.className = 'msg ani';
   div.id = id;
   div.innerHTML = `
-    <div class="msg-avatar"><img src="/static/ani-avatar.png" alt="ANI"></div>
+    <div class="msg-avatar"><img src="/static/ani-profile.webp" alt="ANI"></div>
     <div class="msg-bubble">
       <span class="typing-dots">ANI está respondendo…</span>
     </div>
