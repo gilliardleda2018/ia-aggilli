@@ -457,6 +457,31 @@ html{scroll-behavior:smooth} :root{--muted:#9caec1}
 :focus-visible{outline:2px solid #38bdf8;outline-offset:3px}
 @media(max-width:600px){.hero{text-align:center;padding:36px 18px}.botoes{justify-content:center}.stat{min-width:33%;padding:16px 8px}.chat-section{padding:0 12px}.chat-mensagens{max-height:55vh}.msg-bubble{max-width:calc(100vw - 94px)}.input-area{padding:12px}.contribuir{padding:36px 16px}.card{max-width:none;min-width:100%}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+body{background:radial-gradient(ellipse 70% 500px at 75% 0%,#0c2932 0%,#04080f 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;color:#e9f2fa}
+:root{--muted:#a2b5c8;--borda:#28394c;--bg2:#0b1420;--bg3:#111e2c}
+.hero{min-height:560px;gap:clamp(30px,6vw,100px);padding:80px 36px;background:transparent;flex-direction:row-reverse}
+.hero-img{width:clamp(220px,31vw,390px);height:clamp(220px,31vw,390px);border-radius:36px;box-shadow:0 35px 110px #0009,0 0 90px #38bdf830}
+.hero-texto{max-width:610px}.hero-texto h1{font-size:clamp(64px,8vw,110px);letter-spacing:-.075em;line-height:1.05;margin-bottom:12px}
+.hero-texto h2{font-size:13px;color:#a7c0d5;letter-spacing:.2em}.hero-texto p{font-size:17px;color:#b5c6d8;line-height:1.8}
+.hero-texto p strong{color:#f1f8ff}.badge{padding:9px 15px;font-weight:700;margin-bottom:26px}
+.btn-primary,.btn-secondary{border-radius:13px;font-weight:700}.btn-primary{box-shadow:0 12px 35px #4ade8025}
+.stats{max-width:1160px;margin:0 auto 80px;border:1px solid #293d4e;border-radius:19px;background:#0c1622;overflow:hidden;box-shadow:0 25px 70px #0005}
+.stat{padding:25px 12px}.stat-valor{font-size:27px;letter-spacing:-.04em}.stat-label{color:#a6b7c9}
+.chat-section{max-width:960px;margin:0 auto 90px;padding:0 20px;scroll-margin-top:20px}
+.chat-mensagens{min-height:390px;max-height:560px;padding:32px 24px;gap:24px;border:1px solid #2a3b50;border-radius:23px 23px 0 0;background:#0b1420;box-shadow:0 25px 70px #0006}
+.msg-bubble{max-width:80%;padding:16px 20px;border-radius:18px;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.ani .msg-bubble{background:#172538;border-color:#30465b}.msg.user .msg-bubble{background:#123347;border-color:#23556d}
+.msg-avatar{width:40px;height:40px;border-radius:13px}.sugestoes{background:#0b1420;border:1px solid #2a3b50;border-top:0;padding:17px 24px;gap:9px}
+.sugestao{border-radius:11px;padding:10px 14px;color:#bdd0e1;white-space:normal}
+.input-area{position:static;max-width:960px;margin:-90px auto 65px;border:1px solid #2a3b50;border-top:0;border-radius:0 0 23px 23px;padding:18px 24px 23px;background:#101b29}
+.input-wrapper{max-width:none}.input-wrapper textarea{background:#08121e;border-color:#344b60;min-height:54px;font-size:15px}.btn-enviar{width:54px;height:54px}
+.contribuir{padding:75px 24px 90px;background:linear-gradient(#0b1420,#04080f)}.contribuir h3{font-size:clamp(29px,4vw,42px);letter-spacing:-.05em}.contribuir>p{color:#a9bfd2}
+.cards{max-width:1100px;gap:18px}.card{max-width:350px;padding:30px;background:#101d2b;border-color:#2a4055;border-radius:20px;transition:transform .2s,border-color .2s}.card:hover{transform:translateY(-5px)}.card h4{font-size:17px}.card p{color:#aabed0}.card code{white-space:pre-wrap;overflow-wrap:anywhere}
+.footer{padding:22px;color:#9aafc0}
+:focus-visible{outline:2px solid #38bdf8;outline-offset:3px}
+@media(max-width:700px){.hero{flex-direction:column;padding:40px 20px;text-align:center;gap:25px;min-height:0}.hero-img{width:min(65vw,280px);height:min(65vw,280px)}.hero-texto h1{font-size:65px}.hero-texto p{font-size:15px}.botoes{justify-content:center}.stats{margin:0 15px 60px}.stat{min-width:33%;padding:18px 8px}.chat-section{padding:0 12px;margin-bottom:0}.chat-mensagens{min-height:320px;max-height:55vh;padding:20px 12px}.msg-bubble{max-width:calc(100vw - 110px);padding:12px;font-size:13px}.input-area{margin:0 12px 60px;padding:12px}.sugestoes{padding:14px 12px}.cards{flex-direction:column;align-items:center}.card{max-width:100%;width:100%}.contribuir{padding:55px 16px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -469,8 +494,8 @@ html{scroll-behavior:smooth} :root{--muted:#9caec1}
       <div class="badge-dot"></div>
       <span id="status-badge">Conectando...</span>
     </div>
-    <h1>ANi</h1>
-    <h2>IA da Aggilli</h2>
+    <h1>Conheça a ANI.</h1>
+    <h2>Aggilli Native Intelligence</h2>
     <p>
       A primeira inteligência artificial <strong>livre e distribuída</strong> do Brasil.
       Desenvolvida para treinamento colaborativo.
@@ -590,6 +615,9 @@ e rode todas as células</code>
 
 <script>
   const TOKEN = 'aggilli';
+  document.getElementById('mensagens').setAttribute('role','log');
+  document.getElementById('input').setAttribute('aria-label','Mensagem para ANI');
+  document.getElementById('btn').setAttribute('aria-label','Enviar mensagem');
   const historico = [];
   let ocupado = false;
   document.getElementById('btn').setAttribute('aria-label','Enviar mensagem');
