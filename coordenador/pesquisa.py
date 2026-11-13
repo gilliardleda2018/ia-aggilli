@@ -32,10 +32,46 @@ async def pesquisar(consulta: str) -> list[dict[str, str]]:
     ]
 
 
-def consulta_automatica(texto: str) -> str | None:
+def normalizar(texto: str) -> str:
+    return "".join(c for c in unicodedata.normalize("NFD", texto.lower())
+                   if not unicodedata.combining(c))
+
+
+PEDIDO = re.compile(
+    r"^(?:(?:voce (?:consegue|pode|sabe) |(?:consegue|pode|sabe) )?"
+    r"(?:pesquis(?:e|ar|a|er)|busqu(?:e|ar)|busca|procur(?:e|ar|a)))\b"
+)
+CANAL = r"(?:na (?:web|internet|wikipedia)|online)"
+SAUDACAO = re.compile(r"^(?:oi|ola|bom dia|boa tarde|boa noite)[,!]\s*")
+
+
+def pedido_de_pesquisa(texto: str) -> tuple[bool, str]:
     texto = " ".join(texto.split())
-    normalizado = "".join(c for c in unicodedata.normalize("NFD", texto.casefold())
-                          if not unicodedata.combining(c))
+    saudacao = SAUDACAO.match(normalizar(texto))
+    if saudacao:
+        texto = texto[saudacao.end():]
+    pedido = PEDIDO.match(normalizar(texto))
+    if not pedido:
+        return False, texto
+    assunto = texto[pedido.end():].strip(" ?!.:,")
+    normalizado = normalizar(assunto)
+    tema = re.search(r"\bsobre\s+|[:]", normalizado)
+    if tema:
+        return True, assunto[tema.end():].strip(" ?!.:,")
+    generico = re.fullmatch(
+        rf"(?:coi(?:sas?|ss)|algo|informacoes)?\s*(?:{CANAL})?", normalizado
+    )
+    if generico:
+        return True, ""
+    canal = re.match(rf"^{CANAL}\s+", normalizado)
+    return True, assunto[canal.end():].strip(" ?!.:,") if canal else assunto
+
+
+def consulta_automatica(texto: str) -> str | None:
+    explicito, texto = pedido_de_pesquisa(texto)
+    if explicito:
+        return texto if 2 <= len(texto) <= 240 else None
+    normalizado = normalizar(texto)
     palavras = re.findall(r"[a-z0-9]+", normalizado)
     if not palavras or len(texto) > 240:
         return None

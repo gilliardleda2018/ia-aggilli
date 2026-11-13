@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import structlog
 import httpx
-from coordenador.pesquisa import consulta_automatica, pesquisar
+from coordenador.pesquisa import consulta_automatica, pedido_de_pesquisa, pesquisar
 from coordenador.piloto import router as piloto_router
 
 log = structlog.get_logger()
@@ -82,6 +82,13 @@ async def completar(
     token: str = Depends(verificar_token)
 ):
     ultima   = req.messages[-1].content if req.messages else ""
+    pediu_pesquisa, assunto = pedido_de_pesquisa(ultima)
+    if pediu_pesquisa and not assunto:
+        return RespostaChat(
+            content="Sim, posso pesquisar na Wikipédia em português e trazer links para as fontes. "
+                    "Qual assunto você quer pesquisar? Por exemplo: “Pesquise sobre energia solar”.",
+            confianca=0.0, tokens_usados=0,
+        )
     consulta = None
     if req.pesquisar_web is True:
         consulta = consulta_automatica(ultima) or ultima.strip()
