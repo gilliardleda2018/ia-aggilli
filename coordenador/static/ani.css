@@ -105,7 +105,7 @@ h1, h2 { font-family: "Geist", "Inter", system-ui, sans-serif; }
 }
 h2 { font-size: clamp(1.6rem, 3vw, 2.65rem); line-height: 1.12; letter-spacing: -.04em; }
 .project p:not(.eyebrow), .participate p:not(.eyebrow) { color: var(--muted); line-height: 1.7; }
-.participate p:not(.eyebrow) { margin-top: 12px; }
+.project .project-note, .participate p:not(.eyebrow) { margin-top: 12px; }
 .participate > a { justify-self: end; }
 .site-footer { border-width: 1px 0 0; }
 .footer-inner { flex-wrap: wrap; gap: 12px 24px; padding-block: 16px; }

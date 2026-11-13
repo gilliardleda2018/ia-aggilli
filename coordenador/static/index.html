@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Conheça a ANI, a iniciativa brasileira de inteligência artificial distribuída e de código aberto da Aggilli.">
   <title>ANI — IA da Aggilli</title>
-  <link rel="stylesheet" href="/static/ani.css?v=4">
+  <link rel="stylesheet" href="/static/ani.css?v=5">
 </head>
 <body>
   <header class="site-header">
@@ -13,7 +13,7 @@
       <a class="brand" href="/" aria-label="ANI, página inicial"><img class="brand-mark" src="/static/aggilli-mark.webp" alt="" width="88" height="70"><span>ANI</span></a>
       <nav aria-label="Navegação principal">
         <a class="nav-detail" href="#projeto">O projeto</a>
-        <a class="nav-detail" href="#contribuir">Contribuir</a>
+        <a class="nav-detail" href="#contribuir">Experimentar</a>
         <a class="button button-outline" href="/chat">Abrir chat <span aria-hidden="true">↗</span></a>
       </nav>
     </div>
@@ -39,18 +39,29 @@
     <section class="project" id="projeto" aria-labelledby="project-title">
       <div>
         <p class="eyebrow">O projeto</p>
-        <h2 id="project-title">Como a ANI aprende em rede</h2>
+        <h2 id="project-title">O que é a ANI?</h2>
       </div>
-      <p>No treinamento federado, os nós treinam o modelo localmente. O coordenador recebe e combina as atualizações do modelo para iniciar a próxima rodada de treino.</p>
+      <p>ANI é a sigla de <strong>Aggilli Native Intelligence</strong>, uma iniciativa brasileira que explora como desenvolver inteligência artificial com a participação de várias máquinas. A proposta é que cada participante possa contribuir com parte do treinamento e que essas contribuições ajudem a ajustar um modelo em comum.</p>
+    </section>
+
+    <section class="project" aria-labelledby="training-title">
+      <div>
+        <p class="eyebrow">Treinamento federado</p>
+        <h2 id="training-title">Como as máquinas aprendem juntas?</h2>
+      </div>
+      <div>
+        <p>Cada computador participante, chamado de <strong>nó</strong>, recebe os parâmetros do modelo e faz ajustes usando os exemplos disponíveis localmente. Imagine dois nós trabalhando com conjuntos de textos diferentes. Cada um faz seus próprios ajustes, e o coordenador combina as atualizações recebidas em uma nova versão para a próxima rodada.</p>
+        <p class="project-note">Nessa etapa, os arquivos de treinamento ficam nos nós. O coordenador recebe as atualizações do modelo. Já as mensagens do chat são enviadas ao serviço web para gerar a resposta.</p>
+      </div>
     </section>
 
     <section class="participate" id="contribuir" aria-labelledby="contribute-title">
       <div>
-        <p class="eyebrow">Código aberto</p>
-        <h2 id="contribute-title">Participe do desenvolvimento</h2>
-        <p>Explore a implementação, acompanhe as mudanças ou conheça o cliente usado pelos nós de treinamento.</p>
+        <p class="eyebrow">Experimente a ANI</p>
+        <h2 id="contribute-title">Conheça o protótipo de conversa</h2>
+        <p>Abra uma conversa, escolha uma pergunta sugerida ou escreva a sua. O chat ainda usa respostas de demonstração e permite experimentar a interface enquanto o projeto desenvolve o treinamento e a geração de respostas.</p>
       </div>
-      <a class="button button-outline" href="https://github.com/gilliardleda2018/ia-aggilli">Ver projeto no GitHub <span aria-hidden="true">↗</span></a>
+      <a class="button button-primary" href="/chat">Experimentar o chat <span aria-hidden="true">↗</span></a>
     </section>
   </main>
 
