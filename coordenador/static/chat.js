@@ -96,7 +96,7 @@ async function perguntar(texto) {
     const r = await fetch('/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
-      body:JSON.stringify({messages:historico,dominio:'geral',pesquisar_web:document.getElementById('pesquisar-web').checked}),
+      body:JSON.stringify({messages:historico,dominio:'geral'}),
       signal:controller.signal
     });
     const d = await r.json();
@@ -140,7 +140,7 @@ function adicionarMensagem(tipo, texto, fontes = []) {
     link.style.textDecoration = 'underline';
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    bloco.append(link, document.createElement('br'), document.createTextNode(fonte.trecho));
+    bloco.append(link);
     bolha.appendChild(bloco);
   }
   cont.appendChild(div);

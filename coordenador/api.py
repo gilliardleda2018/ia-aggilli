@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import structlog
 import httpx
-from coordenador.pesquisa import pesquisar
+from coordenador.pesquisa import consulta_automatica, pesquisar
 from coordenador.piloto import router as piloto_router
 
 log = structlog.get_logger()
@@ -48,7 +48,7 @@ class RequisicaoChat(BaseModel):
     max_tokens: int = 2048
     temperature: float = 0.7
     dominio: Optional[str] = None
-    pesquisar_web: bool = False
+    pesquisar_web: bool | None = None
 
 class RespostaChat(BaseModel):
     content: str
@@ -82,15 +82,19 @@ async def completar(
     token: str = Depends(verificar_token)
 ):
     ultima   = req.messages[-1].content if req.messages else ""
-    if req.pesquisar_web:
-        consulta = ultima.strip()
+    consulta = None
+    if req.pesquisar_web is True:
+        consulta = consulta_automatica(ultima) or ultima.strip()
+    elif req.pesquisar_web is None:
+        consulta = consulta_automatica(ultima)
+    if consulta is not None:
         if not 2 <= len(consulta) <= 240:
             raise HTTPException(422, "Use de 2 a 240 caracteres para pesquisar.")
         try:
             fontes = await pesquisar(consulta)
         except (httpx.HTTPError, ValueError):
             raise HTTPException(502, "A Wikipédia está indisponível. Tente novamente.")
-        texto = "Encontrei estes artigos na Wikipédia em português. Confira os trechos e as fontes."
+        texto = "Segundo a Wikipédia em português, " + fontes[0]["trecho"] if fontes else ""
         if not fontes:
             texto = "Não encontrei artigos para essa busca. Tente um termo mais específico."
         return RespostaChat(content=texto, fontes=fontes, confianca=0.0, tokens_usados=0)
