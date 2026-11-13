@@ -482,6 +482,20 @@ body{background:radial-gradient(ellipse 70% 500px at 75% 0%,#0c2932 0%,#04080f 1
 :focus-visible{outline:2px solid #38bdf8;outline-offset:3px}
 @media(max-width:700px){.hero{flex-direction:column;padding:40px 20px;text-align:center;gap:25px;min-height:0}.hero-img{width:min(65vw,280px);height:min(65vw,280px)}.hero-texto h1{font-size:65px}.hero-texto p{font-size:15px}.botoes{justify-content:center}.stats{margin:0 15px 60px}.stat{min-width:33%;padding:18px 8px}.chat-section{padding:0 12px;margin-bottom:0}.chat-mensagens{min-height:320px;max-height:55vh;padding:20px 12px}.msg-bubble{max-width:calc(100vw - 110px);padding:12px;font-size:13px}.input-area{margin:0 12px 60px;padding:12px}.sugestoes{padding:14px 12px}.cards{flex-direction:column;align-items:center}.card{max-width:100%;width:100%}.contribuir{padding:55px 16px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.workspace{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1250px;margin:0 auto 85px;padding:0 20px;gap:18px}
+.workspace .chat-section{margin:0;padding:0;max-width:none;min-width:0}.workspace .chat-mensagens{margin:0;min-height:410px}
+.workspace .input-area{margin:0;border-radius:0 0 20px 20px;max-width:none}.workspace .sugestoes{margin:0}
+.chat-sidebar{border:1px solid #2a3c50;background:#0d1825;border-radius:20px;padding:18px;min-width:0}
+.sidebar-title{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9db6c8;margin:0 0 18px}
+.new-chat{width:100%;padding:12px 14px;background:#4ade80;color:#092015;border:0;border-radius:12px;font-weight:800;text-align:left;margin-bottom:20px}
+.session-list{display:flex;flex-direction:column;gap:7px}.session-item{display:block;width:100%;text-align:left;background:transparent;color:#aebfd0;border:1px solid transparent;border-radius:10px;padding:12px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.session-item:hover,.session-item.active{background:#18293a;color:#e8f8ff;border-color:#2c465c}
+.session-note{font-size:11px;line-height:1.6;color:#8199ac;margin-top:20px}
+.chat-titlebar{padding:16px 20px;border:1px solid #2a3c50;border-radius:20px 20px 0 0;background:#111f2d;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chat-titlebar strong{font-size:14px}.chat-titlebar span{font-size:11px;color:#91eeb0}
+.workspace .chat-mensagens{border-radius:0;border-top:0}.workspace .sugestoes{border-radius:0}
+@media(max-width:760px){.workspace{display:flex;flex-direction:column;padding:0 12px;gap:12px}.chat-sidebar{padding:12px}.sidebar-title,.session-note{display:none}.new-chat{margin-bottom:10px}.session-list{flex-direction:row;overflow-x:auto;padding-bottom:3px}.session-item{min-width:140px;max-width:200px}.workspace .chat-mensagens{min-height:340px;max-height:55vh}.workspace .input-area{margin:0}}
 </style>
 </head>
 <body>
@@ -534,7 +548,7 @@ body{background:radial-gradient(ellipse 70% 500px at 75% 0%,#0c2932 0%,#04080f 1
 </div>
 
 <!-- CHAT -->
-<div class="chat-section" id="chat">
+<div class="workspace" id="chat"><aside class="chat-sidebar" aria-label="Histórico de conversas"><p class="sidebar-title">Suas conversas</p><button class="new-chat" type="button" id="new-chat">＋ Nova conversa</button><div class="session-list" id="session-list"></div><p class="session-note">As conversas ficam apenas nesta aba e são apagadas ao fechar a página.</p></aside><div class="chat-section"><div class="chat-titlebar"><strong id="conversation-title">Nova conversa</strong><span>● ANI experimental</span></div>
 
   <div class="chat-mensagens" id="mensagens">
     <!-- Mensagem inicial da ANI -->
@@ -578,6 +592,7 @@ body{background:radial-gradient(ellipse 70% 500px at 75% 0%,#0c2932 0%,#04080f 1
   </div>
 </div>
 
+</div></div>
 <div class="footer">
   ANI v1.0 · Treinada com Wikipedia PT · Código aberto ·
   <a href="https://github.com/gilliardleda2018/ia-aggilli" target="_blank">GitHub</a> ·
@@ -618,7 +633,46 @@ e rode todas as células</code>
   document.getElementById('mensagens').setAttribute('role','log');
   document.getElementById('input').setAttribute('aria-label','Mensagem para ANI');
   document.getElementById('btn').setAttribute('aria-label','Enviar mensagem');
-  const historico = [];
+  let historico = [];
+  let sessoes = [];
+  let sessaoAtual = null;
+  const boasVindas = document.getElementById('mensagens').innerHTML;
+  const sugestoes = document.getElementById('sugestoes');
+  function criarSessao() {
+    const id = String(Date.now()) + '-' + Math.random().toString(36).slice(2,7);
+    sessoes.unshift({id,titulo:'Nova conversa',historico:[]});
+    selecionarSessao(id);
+    document.getElementById('input').focus();
+  }
+  function selecionarSessao(id) {
+    if (ocupado) return;
+    const sessao = sessoes.find(s => s.id === id);
+    if (!sessao) return;
+    sessaoAtual = id;
+    historico = sessao.historico;
+    const mensagens = document.getElementById('mensagens');
+    mensagens.innerHTML = boasVindas;
+    for (const msg of historico) adicionarMensagem(msg.role === 'user' ? 'user' : 'ani', msg.content);
+    sugestoes.style.display = historico.length ? 'none' : '';
+    document.getElementById('conversation-title').textContent = sessao.titulo;
+    renderizarSessoes();
+  }
+  function renderizarSessoes() {
+    const lista = document.getElementById('session-list');
+    lista.replaceChildren();
+    for (const sessao of sessoes) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'session-item' + (sessao.id === sessaoAtual ? ' active' : '');
+      btn.textContent = sessao.titulo;
+      btn.title = sessao.titulo;
+      btn.setAttribute('aria-current',sessao.id === sessaoAtual ? 'true' : 'false');
+      btn.addEventListener('click',() => selecionarSessao(sessao.id));
+      lista.appendChild(btn);
+    }
+  }
+  document.getElementById('new-chat').addEventListener('click',criarSessao);
+  criarSessao();
   let ocupado = false;
   document.getElementById('btn').setAttribute('aria-label','Enviar mensagem');
   document.getElementById('input').setAttribute('aria-label','Mensagem para ANI');
@@ -661,6 +715,12 @@ e rode todas as células</code>
     document.getElementById('sugestoes').style.display = 'none';
     adicionarMensagem('user', texto);
     historico.push({role:'user',content:texto});
+    const atual = sessoes.find(s => s.id === sessaoAtual);
+    if (atual && atual.titulo === 'Nova conversa') {
+      atual.titulo = texto.slice(0,45) + (texto.length > 45 ? '…' : '');
+      document.getElementById('conversation-title').textContent = atual.titulo;
+      renderizarSessoes();
+    }
     document.getElementById('btn').disabled = true;
     const typingId = adicionarTyping();
     const controller = new AbortController();
