@@ -32,7 +32,7 @@ button { cursor: pointer; }
   object-fit: contain;
   background: transparent;
 }
-.brand-wordmark { display: block; width: clamp(76px, 12vw, 110px); height: auto; }
+.brand-wordmark { display: block; width: clamp(110px, 18vw, 156px); height: auto; }
 nav, .footer-inner { color: var(--muted); font-size: .875rem; }
 nav a:hover, .footer-inner a:hover, .text-link:hover { color: var(--accent); }
 .button {
