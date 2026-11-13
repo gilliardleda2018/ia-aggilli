@@ -75,13 +75,13 @@ class Entrega(BaseModel):
 
 @router.post("/lote")
 def reservar(dados: Convite):
-    codigos = tuple(dict.fromkeys(c.strip() for c in os.environ.get("ANI_PILOTO_CONVITES", "").split(",") if c.strip()))
+    codigos = tuple(dict.fromkeys(c.strip() for c in os.environ.get("ANI_PILOTO_CONVITES_SHA256", "").split(",") if re.fullmatch(r"[0-9a-f]{64}", c.strip())))
     if len(codigos) < MINIMO:
         raise HTTPException(503, "Piloto ainda indisponível.")
-    codigo = next((c for c in codigos if hmac.compare_digest(c.encode(), dados.codigo.encode())), None)
+    identificador = sha256(dados.codigo.encode()).hexdigest()
+    codigo = next((c for c in codigos if hmac.compare_digest(c, identificador)), None)
     if codigo is None:
         raise HTTPException(403, "Convite inválido.")
-    identificador = sha256(codigo.encode()).hexdigest()
     with closing(banco()) as db, db:
         db.execute("BEGIN IMMEDIATE")
         versao, pesos = db.execute("SELECT versao, pesos FROM modelo ORDER BY versao DESC LIMIT 1").fetchone()
