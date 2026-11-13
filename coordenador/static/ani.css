@@ -25,7 +25,13 @@ button { cursor: pointer; }
 }
 .header-inner, .footer-inner { min-height: 74px; justify-content: space-between; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; white-space: nowrap; }
-.brand-mark { display: block; width: 40px; height: 32px; object-fit: contain; }
+.brand-mark {
+  display: block;
+  width: clamp(56px, 8vw, 64px);
+  height: auto;
+  object-fit: contain;
+  background: transparent;
+}
 nav, .footer-inner { color: var(--muted); font-size: .875rem; }
 nav a:hover, .footer-inner a:hover, .text-link:hover { color: var(--accent); }
 .button {
