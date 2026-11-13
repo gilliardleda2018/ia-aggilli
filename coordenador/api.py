@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import structlog
+from coordenador.piloto import router as piloto_router
 
 log = structlog.get_logger()
 
@@ -24,6 +25,8 @@ app.add_middleware(CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["POST", "GET"],
     allow_headers=["*"])
+
+app.include_router(piloto_router)
 
 _inicio = time.time()
 _estado = {
@@ -101,3 +104,8 @@ async def index():
 @app.get("/chat", include_in_schema=False)
 async def chat_ui():
     return FileResponse(os.path.join(static_path, "chat.html"))
+
+
+@app.get("/colaborar", include_in_schema=False)
+async def colaborar_ui():
+    return FileResponse(os.path.join(static_path, "colaborar.html"))

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colabore com a ANI</title>
+  <link rel="stylesheet" href="/static/ani.css?v=7">
+  <script src="/static/piloto.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="ANI, página inicial"><img class="brand-mark" src="/static/aggilli-mark.webp" alt="" width="88" height="70"><img class="brand-wordmark" src="/static/ani-wordmark.webp" alt="" width="267" height="144"></a>
+      <nav aria-label="Navegação principal"><a href="/">Voltar ao início</a></nav>
+    </div>
+  </header>
+  <main class="container">
+    <section class="chat-shell" aria-labelledby="titulo">
+      <p class="eyebrow">Piloto por convite</p>
+      <h1 id="titulo">Empreste sua CPU para a ANI</h1>
+      <p class="intro">Seu navegador vai ajudar a treinar um pequeno modelo que distingue textos sobre agricultura e transporte. Ele recebe exemplos do projeto e envia os ajustes calculados. A sessão usa um processo de trabalho do navegador, dura até cinco minutos e pode ser interrompida a qualquer momento.</p>
+      <form id="piloto" class="actions">
+        <label for="convite">Código de convite</label>
+        <input id="convite" type="password" required maxlength="128" autocomplete="off">
+        <button class="button button-primary" id="iniciar">Iniciar contribuição</button>
+        <button class="button button-outline" id="parar" type="button" disabled>Parar</button>
+      </form>
+      <p class="intro" id="estado" role="status"></p>
+      <p class="intro" id="resultado"></p>
+    </section>
+  </main>
+</body>
+</html>
