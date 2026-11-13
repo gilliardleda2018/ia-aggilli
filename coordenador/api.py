@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import structlog
 import httpx
-from coordenador.pesquisa import consulta_automatica, pedido_de_pesquisa, pesquisar
+from coordenador.pesquisa import consulta_automatica, ler_artigo, pedido_de_pesquisa, pesquisar
 from coordenador.piloto import router as piloto_router
 
 log = structlog.get_logger()
@@ -118,6 +118,19 @@ async def completar(
         tokens_usados=len(resposta.split()),
         custo=0.0,
     )
+
+@app.get("/api/chat/fontes/{pageid}")
+async def fonte_do_chat(pageid: int):
+    if not 1 <= pageid <= 2_147_483_647:
+        raise HTTPException(404, "Artigo não encontrado.")
+    try:
+        artigo = await ler_artigo(pageid)
+    except (httpx.HTTPError, ValueError):
+        raise HTTPException(502, "A Wikipédia está indisponível.")
+    if artigo is None:
+        raise HTTPException(404, "Artigo não encontrado.")
+    return artigo
+
 
 static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 app.mount("/static", StaticFiles(directory=static_path), name="static")

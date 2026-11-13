@@ -131,16 +131,38 @@ function adicionarMensagem(tipo, texto, fontes = []) {
   `;
   const bolha = div.querySelector('.msg-bubble');
   for (const fonte of fontes) {
-    if (!/^https:\/\/pt\.wikipedia\.org\/\?curid=\d+$/.test(fonte.url)) continue;
-    const bloco = document.createElement('p');
+    const pagina = fonte.url.match(/^https:\/\/pt\.wikipedia\.org\/\?curid=(\d+)$/);
+    if (!pagina) continue;
+    const bloco = document.createElement('details');
     bloco.style.marginTop = '12px';
-    const link = document.createElement('a');
-    link.href = fonte.url;
-    link.textContent = fonte.titulo + ' ↗';
-    link.style.textDecoration = 'underline';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    bloco.append(link);
+    const titulo = document.createElement('summary');
+    titulo.style.cursor = 'pointer';
+    titulo.textContent = fonte.titulo;
+    const conteudo = document.createElement('p');
+    conteudo.style.whiteSpace = 'pre-line';
+    conteudo.textContent = fonte.trecho;
+    let carregando = false;
+    let carregado = false;
+    bloco.addEventListener('toggle', async () => {
+      if (!bloco.open || carregando || carregado) return;
+      carregando = true;
+      conteudo.textContent = 'Carregando artigo…';
+      try {
+        const resposta = await fetch('/api/chat/fontes/' + pagina[1]);
+        if (!resposta.ok) throw new Error();
+        const artigo = await resposta.json();
+        conteudo.textContent = artigo.texto;
+        carregado = true;
+      } catch {
+        conteudo.textContent = fonte.trecho + '\n\nO artigo não pôde ser carregado. Feche e abra o título para tentar novamente.';
+      } finally {
+        carregando = false;
+      }
+    });
+    const credito = document.createElement('small');
+    credito.style.overflowWrap = 'anywhere';
+    credito.textContent = 'Fonte: Wikipédia em português · ' + fonte.url;
+    bloco.append(titulo, conteudo, credito);
     bolha.appendChild(bloco);
   }
   cont.appendChild(div);

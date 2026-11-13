@@ -90,3 +90,23 @@ def consulta_automatica(texto: str) -> str | None:
     consulta = texto[prefixo.end():] if prefixo else texto
     consulta = consulta.strip(" ?!.:,")
     return consulta if len(consulta) >= 2 else None
+
+async def ler_artigo(pageid: int) -> dict[str, str] | None:
+    async with httpx.AsyncClient(timeout=6, follow_redirects=False) as cliente:
+        resposta = await cliente.get(
+            f"{ORIGEM}/w/api.php",
+            headers={"User-Agent": "ANI/1.0 (https://ani.aggillintelligence.com.br/)"},
+            params={
+                "action": "query", "format": "json", "formatversion": 2,
+                "pageids": pageid, "prop": "extracts", "explaintext": 1,
+            },
+        )
+        resposta.raise_for_status()
+        dados = resposta.json()
+        if "error" in dados:
+            raise ValueError("Consulta recusada pela Wikipédia")
+    for pagina in dados.get("query", {}).get("pages", []):
+        texto = pagina.get("extract", "").strip()
+        if pagina.get("ns") == 0 and texto:
+            return {"texto": texto}
+    return None
