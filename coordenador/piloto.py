@@ -1,7 +1,6 @@
-"""Piloto fechado de aprendizado federado com um classificador de temas."""
+"""Piloto público de aprendizado federado com um classificador de temas."""
 from contextlib import closing
 from hashlib import sha256
-import hmac
 import json
 import math
 import os
@@ -11,7 +10,7 @@ import secrets
 import sqlite3
 import time
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Cookie, HTTPException, Response
 from pydantic import BaseModel, Field, FiniteFloat
 
 router = APIRouter(prefix="/api/piloto")
@@ -64,34 +63,34 @@ def banco():
     return db
 
 
-class Convite(BaseModel):
-    codigo: str = Field(min_length=1, max_length=128)
-
-
 class Entrega(BaseModel):
     ticket: str = Field(min_length=32, max_length=64)
     delta: list[FiniteFloat] = Field(min_length=DIM, max_length=DIM)
 
 
 @router.post("/lote")
-def reservar(dados: Convite):
-    codigos = tuple(dict.fromkeys(c.strip() for c in os.environ.get("ANI_PILOTO_CONVITES_SHA256", "").split(",") if re.fullmatch(r"[0-9a-f]{64}", c.strip())))
-    if len(codigos) < MINIMO:
-        raise HTTPException(503, "Piloto ainda indisponível.")
-    identificador = sha256(dados.codigo.encode()).hexdigest()
-    codigo = next((c for c in codigos if hmac.compare_digest(c, identificador)), None)
-    if codigo is None:
-        raise HTTPException(403, "Convite inválido.")
+def reservar(resposta: Response, ani_participante: str | None = Cookie(default=None)):
+    participante = ani_participante or ""
+    if not re.fullmatch(r"[A-Za-z0-9_-]{43}", participante):
+        participante = secrets.token_urlsafe(32)
+    resposta.set_cookie("ani_participante", participante, max_age=86400 * 30,
+                       httponly=True, secure=True, samesite="strict", path="/api/piloto")
+    identificador = sha256(participante.encode()).hexdigest()
     with closing(banco()) as db, db:
         db.execute("BEGIN IMMEDIATE")
         versao, pesos = db.execute("SELECT versao, pesos FROM modelo ORDER BY versao DESC LIMIT 1").fetchone()
         anterior = db.execute("SELECT delta FROM lotes WHERE versao=? AND convite=?", (versao, identificador)).fetchone()
         if anterior and anterior[0] is not None:
             raise HTTPException(409, "Sua contribuição já foi recebida nesta rodada.")
+        agora = time.time()
+        db.execute("DELETE FROM lotes WHERE delta IS NULL AND expira < ?", (agora,))
+        ocupados = db.execute(
+            "SELECT COUNT(*) FROM lotes WHERE versao=? AND convite<>?", (versao, identificador)
+        ).fetchone()[0]
         ticket = secrets.token_urlsafe(32)
         db.execute("INSERT OR REPLACE INTO lotes VALUES (?, ?, ?, ?, NULL)",
-                   (versao, identificador, ticket, time.time() + 300))
-    lote = LOTES[codigos.index(codigo) % len(LOTES)]
+                   (versao, identificador, ticket, agora + 300))
+    lote = LOTES[ocupados % len(LOTES)]
     exemplos = [[atributos(texto), classe] for classe, textos in zip((1, 0), lote) for texto in textos]
     return {"ticket": ticket, "pesos": json.loads(pesos), "exemplos": exemplos}
 
