@@ -24,7 +24,7 @@ function selecionarSessao(id) {
   sessaoAtual = id;
   historico = sessao.historico;
   document.getElementById('mensagens').innerHTML = boasVindas;
-  for (const msg of historico) adicionarMensagem(msg.role === 'user' ? 'user' : 'ani',msg.content);
+  for (const msg of historico) adicionarMensagem(msg.role === 'user' ? 'user' : 'ani',msg.content, msg.fontes);
   document.getElementById('sugestoes').hidden = historico.length > 0;
   document.getElementById('conversation-title').textContent = sessao.titulo;
   renderizarSessoes();
@@ -96,15 +96,15 @@ async function perguntar(texto) {
     const r = await fetch('/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
-      body:JSON.stringify({messages:historico,dominio:'geral'}),
+      body:JSON.stringify({messages:historico,dominio:'geral',pesquisar_web:document.getElementById('pesquisar-web').checked}),
       signal:controller.signal
     });
-    if (!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === 'string' ? d.detail : 'HTTP '+r.status);
     const resposta = d.choices?.[0]?.message?.content ?? d.content ?? d.resposta ?? d.response;
     if (typeof resposta !== 'string' || !resposta.trim()) throw new Error('Resposta vazia');
-    historico.push({role:'assistant',content:resposta});
-    adicionarMensagem('ani',resposta);
+    historico.push({role:'assistant',content:resposta,fontes:d.fontes});
+    adicionarMensagem('ani',resposta,d.fontes);
   } catch(err) {
     historico.pop();
     adicionarMensagem('ani',err.name==='AbortError'?'A resposta demorou demais. Tente novamente.':'Falha ao responder ('+err.message+'). Tente novamente.');
@@ -116,7 +116,7 @@ async function perguntar(texto) {
   }
 }
 
-function adicionarMensagem(tipo, texto) {
+function adicionarMensagem(tipo, texto, fontes = []) {
   const cont = document.getElementById('mensagens');
   const div  = document.createElement('div');
   div.className = `msg ${tipo}`;
@@ -129,6 +129,20 @@ function adicionarMensagem(tipo, texto) {
     ${avatar}
     <div class="msg-bubble">${esc(texto)}</div>
   `;
+  const bolha = div.querySelector('.msg-bubble');
+  for (const fonte of fontes) {
+    if (!/^https:\/\/pt\.wikipedia\.org\/\?curid=\d+$/.test(fonte.url)) continue;
+    const bloco = document.createElement('p');
+    bloco.style.marginTop = '12px';
+    const link = document.createElement('a');
+    link.href = fonte.url;
+    link.textContent = fonte.titulo + ' ↗';
+    link.style.textDecoration = 'underline';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    bloco.append(link, document.createElement('br'), document.createTextNode(fonte.trecho));
+    bolha.appendChild(bloco);
+  }
   cont.appendChild(div);
   cont.scrollTop = cont.scrollHeight;
 }
