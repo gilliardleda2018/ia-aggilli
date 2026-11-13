@@ -1,0 +1,104 @@
+version: "3.9"
+
+services:
+
+  coordenador:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.coordenador
+    container_name: ani-coordenador
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+      - "8000:8000"
+    environment:
+      - ANI_HOST=0.0.0.0
+      - ANI_PORT=9090
+      - ANI_ROUNDS=10000
+      - DATABASE_URL=postgresql://ani:ani@postgres:5432/ani
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ani-checkpoints:/app/checkpoints
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    networks: [ani-network]
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.coordenador
+    container_name: ani-api
+    command: uvicorn coordenador.api:app --host 0.0.0.0 --port 8080 --workers 4
+    ports: ["8080:8080"]
+    environment:
+      - DATABASE_URL=postgresql://ani:ani@postgres:5432/ani
+      - REDIS_URL=redis://redis:6379/0
+    depends_on: [coordenador]
+    networks: [ani-network]
+
+  no-demo:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.no
+    container_name: ani-no-demo
+    environment:
+      - ANI_SERVIDOR=coordenador:9090
+      - ANI_DOMINIO=geral
+    depends_on: [coordenador]
+    networks: [ani-network]
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ani-postgres
+    environment:
+      POSTGRES_DB: ani
+      POSTGRES_USER: ani
+      POSTGRES_PASSWORD: ani
+    volumes: [ani-postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ani"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks: [ani-network]
+
+  redis:
+    image: redis:7-alpine
+    container_name: ani-redis
+    volumes: [ani-redis:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks: [ani-network]
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ani-prometheus
+    ports: ["9091:9090"]
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ani-prometheus:/prometheus
+    networks: [ani-network]
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ani-grafana
+    ports: ["3000:3000"]
+    environment: [GF_SECURITY_ADMIN_PASSWORD=aggilli]
+    volumes: [ani-grafana:/var/lib/grafana]
+    depends_on: [prometheus]
+    networks: [ani-network]
+
+volumes:
+  ani-checkpoints: {}
+  ani-postgres: {}
+  ani-redis: {}
+  ani-prometheus: {}
+  ani-grafana: {}
+
+networks:
+  ani-network:
+    driver: bridge

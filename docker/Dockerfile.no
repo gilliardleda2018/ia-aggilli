@@ -1,0 +1,21 @@
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+LABEL maintainer="Aggilli Intelligence <dev@aggilli.com.br>"
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential git curl && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY no/     ./no/
+COPY dados/  ./dados/
+COPY modelo/ ./modelo/
+
+ENV HF_HOME=/app/.cache/huggingface
+ENV TOKENIZERS_PARALLELISM=false
+
+WORKDIR /app/no
+CMD ["python", "cliente.py", \
+     "--servidor", "coordenador:9090", \
+     "--dominio",  "geral"]

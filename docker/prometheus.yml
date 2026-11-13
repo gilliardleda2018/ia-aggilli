@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "ani-coordenador"
+    static_configs:
+      - targets: ["coordenador:8000"]
