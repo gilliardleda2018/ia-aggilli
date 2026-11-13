@@ -129,5 +129,8 @@ def resultado():
     with closing(banco()) as db:
         versao, antes, depois, adotado = db.execute(
             "SELECT versao, antes, depois, adotado FROM modelo ORDER BY versao DESC LIMIT 1").fetchone()
-    return {"rodadas": versao, "perda_antes": antes, "perda_candidata": depois,
+        pendentes = db.execute(
+            "SELECT COUNT(*) FROM lotes WHERE versao=? AND delta IS NOT NULL", (versao,)
+        ).fetchone()[0]
+    return {"rodadas": versao, "contribuicoes": pendentes, "meta": MINIMO, "perda_antes": antes, "perda_candidata": depois,
             "adotado": bool(adotado) if versao else None}

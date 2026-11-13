@@ -4,6 +4,13 @@ const parar = document.getElementById("parar");
 const estado = document.getElementById("estado");
 const resultado = document.getElementById("resultado");
 let sessao;
+const credencial = new URLSearchParams(location.hash.slice(1)).get("participar");
+if (credencial) {
+  history.replaceState(null, "", location.pathname + location.search);
+} else {
+  iniciar.disabled = true;
+  estado.textContent = "Abra o link de participação que você recebeu para iniciar.";
+}
 
 async function api(rota, options) {
   const response = await fetch("/api/piloto/" + rota, options);
@@ -45,7 +52,7 @@ function finalizar(atual, mensagem) {
 
 form.addEventListener("submit", async event => {
   event.preventDefault();
-  if (sessao) return;
+  if (sessao || !credencial) return;
   const atual = { controller: new AbortController() };
   sessao = atual;
   iniciar.disabled = true;
@@ -53,7 +60,7 @@ form.addEventListener("submit", async event => {
   estado.textContent = "Solicitando lote…";
   atual.timeout = setTimeout(() => finalizar(atual, "O tempo da sessão terminou."), 300_000);
   try {
-    const lote = await enviar("lote", { codigo: document.getElementById("convite").value.trim() }, atual.controller.signal);
+    const lote = await enviar("lote", { codigo: credencial }, atual.controller.signal);
     if (sessao !== atual) return;
     const worker = new Worker("/static/piloto-worker.js");
     atual.worker = worker;
