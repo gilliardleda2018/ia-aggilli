@@ -105,16 +105,40 @@ async def completar(
         if not fontes:
             texto = "Não encontrei artigos para essa busca. Tente um termo mais específico."
         return RespostaChat(content=texto, fontes=fontes, confianca=0.0, tokens_usados=0)
-    resposta = (
-        f"Olá! Sou a ANI — Aggilli Native Intelligence. "
-        f"Domínio: {req.dominio or 'geral'}. "
-        f"Você perguntou: {ultima[:100]}. "
-        f"Ainda estou aprendendo, mas já estou viva! 🌱"
-    )
+    # Resposta inteligente sem pesquisa
+    ultima_norm = ultima.lower().strip()
+
+    if any(x in ultima_norm for x in ["quem e voce", "quem é você", "o que e a ani",
+                                       "o que você faz", "o que voce faz"]):
+        resposta = (
+            "Sou a ANI — Aggilli Native Intelligence. 🌱\n\n"
+            "Sou uma inteligência artificial livre e distribuída, "
+            "criada pela Aggilli Intelligence e treinada pela humanidade "
+            "via Federated Learning.\n\n"
+            "Posso responder perguntas sobre qualquer assunto consultando "
+            "a Wikipedia em português e inglês, sem custo por resposta.\n\n"
+            "Experimente me perguntar: *O que é fotossíntese?* ou "
+            "*O que é machine learning?*"
+        )
+    elif any(x in ultima_norm for x in ["ola", "oi", "bom dia", "boa tarde",
+                                         "boa noite", "tudo bem", "como vai"]):
+        resposta = (
+            "Olá! Sou a ANI — IA livre da Aggilli. 🌱\n\n"
+            "Posso pesquisar qualquer assunto para você na Wikipedia. "
+            "O que você gostaria de saber hoje?"
+        )
+    else:
+        resposta = (
+            f"Sou a ANI — IA livre e distribuída da Aggilli. 🌱\n\n"
+            f"Você perguntou: *{ultima[:100]}*\n\n"
+            f"Para pesquisar um assunto específico, tente: "
+            f"*O que é [tema]?* ou *Explique [tema]*"
+        )
+
     return RespostaChat(
         content=resposta,
         model=_estado["versao"],
-        confianca=0.92,
+        confianca=0.95,
         tokens_usados=len(resposta.split()),
         custo=0.0,
     )

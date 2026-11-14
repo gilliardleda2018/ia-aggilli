@@ -119,6 +119,14 @@ def consulta_automatica(texto: str) -> str | None:
         return assunto if 2 <= len(assunto) <= 240 else None
     normalizado = normalizar(texto)
     # Nao pesquisa saudacoes simples
+    nao_pesquisar = [
+        'o que voce', 'o que você', 'voce pode', 'você pode',
+        'quem e voce', 'quem e a ani', 'o que e a ani',
+        'fale sobre voce', 'me apresente', 'como funciona voce',
+        'o que faz', 'ola ani', 'oi ani',
+    ]
+    if any(x in normalizado for x in nao_pesquisar):
+        return None
     if normalizado.strip() in {'oi', 'ola', 'bom dia', 'boa tarde', 'boa noite',
                                 'obrigado', 'obrigada', 'tudo bem', 'ok', 'sim', 'nao'}:
         return None
