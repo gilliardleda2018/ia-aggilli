@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import structlog
 import httpx
-from coordenador.pesquisa import consulta_automatica, ler_artigo, pedido_de_pesquisa, pesquisar
+from coordenador.pesquisa import consulta_automatica, ler_artigo, pedido_de_pesquisa, pesquisar, pesquisar_inteligente
 from coordenador.piloto import router as piloto_router
 
 log = structlog.get_logger()
@@ -98,7 +98,7 @@ async def completar(
         if not 2 <= len(consulta) <= 240:
             raise HTTPException(422, "Use de 2 a 240 caracteres para pesquisar.")
         try:
-            fontes = await pesquisar(consulta)
+            fontes = await pesquisar_inteligente(consulta)
         except (httpx.HTTPError, ValueError):
             raise HTTPException(502, "A Wikipédia está indisponível. Tente novamente.")
         texto = "Segundo a Wikipédia em português, " + fontes[0]["trecho"] if fontes else ""
