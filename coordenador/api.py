@@ -17,6 +17,36 @@ from coordenador.pesquisa import consulta_automatica, ler_artigo, pedido_de_pesq
 from coordenador.piloto import router as piloto_router
 
 log = structlog.get_logger()
+import os, sys
+sys.path.insert(0, '/app')
+
+_modelo_ani = None
+_tokenizer_ani = None
+
+def carregar_modelo_ani():
+    global _modelo_ani, _tokenizer_ani
+    if _modelo_ani is not None:
+        return _modelo_ani, _tokenizer_ani
+    checkpoint = '/app/checkpoints/ani-v5'
+    if not os.path.exists(checkpoint):
+        return None, None
+    try:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        _tokenizer_ani = AutoTokenizer.from_pretrained(checkpoint)
+        _tokenizer_ani.pad_token = _tokenizer_ani.eos_token
+        _modelo_ani = AutoModelForCausalLM.from_pretrained(
+            checkpoint,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+            device_map='auto'
+        )
+        _modelo_ani.eval()
+        print('ANI-v5 carregada!')
+        return _modelo_ani, _tokenizer_ani
+    except Exception as e:
+        print(f'Erro ao carregar ANI-v5: {e}')
+        return None, None
+
 
 app = FastAPI(
     title="ANI — Aggilli Native Intelligence",
