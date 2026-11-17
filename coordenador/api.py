@@ -15,6 +15,7 @@ import structlog
 import httpx
 from coordenador.pesquisa import consulta_automatica, ler_artigo, pedido_de_pesquisa, pesquisar, pesquisar_inteligente
 from coordenador.piloto import router as piloto_router
+from coordenador.openai_provider import responder_openai
 
 log = structlog.get_logger()
 import os, sys
@@ -135,6 +136,18 @@ async def completar(
         if not fontes:
             texto = "Não encontrei artigos para essa busca. Tente um termo mais específico."
         return RespostaChat(content=texto, fontes=fontes, confianca=0.0, tokens_usados=0)
+    # Provedor externo opcional: desligado por padrão; fallback preserva a ANI.
+    if os.getenv("ANI_OPENAI_ENABLED", "false").lower() == "true" and os.getenv("OPENAI_API_KEY"):
+        try:
+            texto_openai, modelo_openai, tokens_openai = await responder_openai(
+                req.messages, req.max_tokens, req.temperature
+            )
+            return RespostaChat(
+                content=texto_openai, model=f"ani+openai/{modelo_openai}",
+                confianca=0.0, tokens_usados=tokens_openai, custo=0.0,
+            )
+        except (httpx.HTTPError, ValueError, KeyError, IndexError, RuntimeError) as exc:
+            log.warning("openai_fallback_ani", error_type=type(exc).__name__)
     # Resposta inteligente sem pesquisa
     ultima_norm = ultima.lower().strip()
 
